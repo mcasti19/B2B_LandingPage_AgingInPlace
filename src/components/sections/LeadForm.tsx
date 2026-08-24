@@ -142,36 +142,29 @@ export function LeadForm() {
     }
   };
 
-  // ─── Success State ──────────────────────────────────────────────────────────
-  if (isSuccess) {
-    return (
-      <section id="demo" className="py-24 bg-zinc-900 border-t border-zinc-800">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-5xl mx-auto bg-zinc-950 rounded-3xl border border-emerald-500/30 overflow-hidden shadow-2xl shadow-emerald-500/10">
-            <div className="flex flex-col items-center justify-center py-16 px-6 text-center gap-6">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-emerald-500" />
-              </div>
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-zinc-50 mb-2">
-                  You&apos;re on the list!
-                </h2>
-                <p className="text-zinc-400 max-w-md">
-                  Thanks for reaching out. Our team will review your information and contact you within 24 hours to schedule your personalized demo.
-                </p>
-              </div>
-              <button
-                onClick={() => setIsSuccess(false)}
-                className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors underline underline-offset-4"
-              >
-                Submit another response
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
+  // ─── Component ─────────────────────────────────────────────────────────────────
+  // Inline success state rendered in place of the form
+  const SuccessState = () => (
+    <div className="flex flex-col items-center justify-center py-12 px-6 text-center gap-6 h-full min-h-[400px]">
+      <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center">
+        <CheckCircle className="w-8 h-8 text-emerald-500" />
+      </div>
+      <div>
+        <h2 className="text-2xl md:text-3xl font-bold text-zinc-50 mb-2">
+          You&apos;re on the list!
+        </h2>
+        <p className="text-zinc-400 max-w-md mx-auto">
+          Thanks for reaching out. Our team will review your information and contact you within 24 hours to schedule your personalized demo.
+        </p>
+      </div>
+      <button
+        onClick={() => setIsSuccess(false)}
+        className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors underline underline-offset-4 mt-4"
+      >
+        Submit another response
+      </button>
+    </div>
+  );
 
   // ─── Form ───────────────────────────────────────────────────────────────────
   return (
@@ -205,100 +198,103 @@ export function LeadForm() {
               </div>
             </div>
 
-            {/* Right Side: Form */}
+            {/* Right Side: Form or Success */}
             <div className="md:col-span-3 p-6 md:p-10">
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+              {isSuccess ? (
+                <SuccessState />
+              ) : (
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
+                  {/* Row 1: Name + Company */}
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="contact_name">Owner&apos;s Name</Label>
+                      <Input id="contact_name" placeholder="John Doe" {...register("contact_name")} />
+                      {errors.contact_name && (
+                        <span className="text-red-400 text-xs">{errors.contact_name.message}</span>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="company_name">Company Name</Label>
+                      <Input id="company_name" placeholder="Acme Remodeling" {...register("company_name")} />
+                      {errors.company_name && (
+                        <span className="text-red-400 text-xs">{errors.company_name.message}</span>
+                      )}
+                    </div>
+                  </div>
 
-                {/* Row 1: Name + Company */}
-                <div className="grid md:grid-cols-2 gap-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="contact_name">Owner&apos;s Name</Label>
-                    <Input id="contact_name" placeholder="John Doe" {...register("contact_name")} />
-                    {errors.contact_name && (
-                      <span className="text-red-400 text-xs">{errors.contact_name.message}</span>
-                    )}
+                  {/* Row 2: Email + Phone */}
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email Address</Label>
+                      <Input id="email" type="email" placeholder="john@acmeremodeling.com" {...register("email")} />
+                      {errors.email && (
+                        <span className="text-red-400 text-xs">{errors.email.message}</span>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number</Label>
+                      <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" {...register("phone")} />
+                      {errors.phone && (
+                        <span className="text-red-400 text-xs">{errors.phone.message}</span>
+                      )}
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="company_name">Company Name</Label>
-                    <Input id="company_name" placeholder="Acme Remodeling" {...register("company_name")} />
-                    {errors.company_name && (
-                      <span className="text-red-400 text-xs">{errors.company_name.message}</span>
-                    )}
-                  </div>
-                </div>
 
-                {/* Row 2: Email + Phone */}
-                <div className="grid md:grid-cols-2 gap-5">
+                  {/* Row 3: State */}
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input id="email" type="email" placeholder="john@acmeremodeling.com" {...register("email")} />
-                    {errors.email && (
-                      <span className="text-red-400 text-xs">{errors.email.message}</span>
+                    <Label htmlFor="state">State (e.g. Florida, Texas)</Label>
+                    <Input id="state" placeholder="State where you operate" {...register("state")} />
+                    {errors.state && (
+                      <span className="text-red-400 text-xs">{errors.state.message}</span>
                     )}
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" {...register("phone")} />
-                    {errors.phone && (
-                      <span className="text-red-400 text-xs">{errors.phone.message}</span>
-                    )}
-                  </div>
-                </div>
 
-                {/* Row 3: State */}
-                <div className="space-y-2">
-                  <Label htmlFor="state">State (e.g. Florida, Texas)</Label>
-                  <Input id="state" placeholder="State where you operate" {...register("state")} />
-                  {errors.state && (
-                    <span className="text-red-400 text-xs">{errors.state.message}</span>
+                  {/* Row 4: Volume */}
+                  <div className="space-y-2">
+                    <Label htmlFor="volume" className="text-sm leading-snug block">
+                      How many accessibility projects do you complete per month?
+                    </Label>
+                    <select
+                      id="volume"
+                      className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm ring-offset-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-zinc-100"
+                      {...register("volume")}
+                    >
+                      <option value="">Select an option</option>
+                      <option value="1-3">1 to 3 projects</option>
+                      <option value="4-10">4 to 10 projects</option>
+                      <option value="10+">More than 10 projects</option>
+                    </select>
+                    {errors.volume && (
+                      <span className="text-red-400 text-xs">{errors.volume.message}</span>
+                    )}
+                  </div>
+
+                  {/* Honeypot — hidden from real users, traps bots */}
+                  <input type="text" {...register("_gotcha")} style={{ display: "none" }} tabIndex={-1} autoComplete="off" />
+
+                  {/* Error Banner */}
+                  {errorBanner && (
+                    <div className="flex items-start gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>{errorBanner}</span>
+                    </div>
                   )}
-                </div>
 
-                {/* Row 4: Volume */}
-                <div className="space-y-2">
-                  <Label htmlFor="volume" className="text-sm leading-snug block">
-                    How many accessibility projects do you complete per month?
-                  </Label>
-                  <select
-                    id="volume"
-                    className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm ring-offset-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-zinc-100"
-                    {...register("volume")}
+                  <Button
+                    type="submit"
+                    variant="emerald"
+                    size="lg"
+                    className="w-full h-auto py-3 md:py-4 text-base md:text-lg mt-2 whitespace-normal text-center"
+                    disabled={isSubmitting}
                   >
-                    <option value="">Select an option</option>
-                    <option value="1-3">1 to 3 projects</option>
-                    <option value="4-10">4 to 10 projects</option>
-                    <option value="10+">More than 10 projects</option>
-                  </select>
-                  {errors.volume && (
-                    <span className="text-red-400 text-xs">{errors.volume.message}</span>
-                  )}
-                </div>
+                    {isSubmitting ? "Sending..." : "Get my growth plan"}
+                  </Button>
 
-                {/* Honeypot — hidden from real users, traps bots */}
-                <input type="text" {...register("_gotcha")} style={{ display: "none" }} tabIndex={-1} autoComplete="off" />
-
-                {/* Error Banner */}
-                {errorBanner && (
-                  <div className="flex items-start gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span>{errorBanner}</span>
-                  </div>
-                )}
-
-                <Button
-                  type="submit"
-                  variant="emerald"
-                  size="lg"
-                  className="w-full h-auto py-3 md:py-4 text-base md:text-lg mt-2 whitespace-normal text-center"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Sending..." : "Get my growth plan"}
-                </Button>
-
-                <p className="text-center text-xs text-zinc-500">
-                  Your data is safe. We will never share it with anyone.
-                </p>
-              </form>
+                  <p className="text-center text-xs text-zinc-500">
+                    Your data is safe. We will never share it with anyone.
+                  </p>
+                </form>
+              )}
             </div>
 
           </div>

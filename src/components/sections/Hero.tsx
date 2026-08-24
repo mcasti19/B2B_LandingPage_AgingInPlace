@@ -42,11 +42,21 @@ export function Hero() {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Button variant="emerald" size="lg" className="w-full sm:w-auto text-lg px-8 h-14" asChild>
-              <a href="#demo">Solicitar Demo del Sistema</a>
+            <Button 
+              variant="emerald" 
+              size="lg" 
+              className="w-full sm:w-auto text-lg px-8 h-14" 
+              onClick={() => { window.location.href = "#demo"; }}
+            >
+              Solicitar Demo del Sistema
             </Button>
-            <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-8 h-14" asChild>
-              <a href="#how-it-works">Cómo Funciona</a>
+            <Button 
+              variant="outline" 
+              size="lg" 
+              className="w-full sm:w-auto text-lg px-8 h-14" 
+              onClick={() => { window.location.href = "#how-it-works"; }}
+            >
+              Cómo Funciona
             </Button>
           </motion.div>
         </motion.div>

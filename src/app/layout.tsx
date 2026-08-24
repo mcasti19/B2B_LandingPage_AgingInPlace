@@ -21,8 +21,22 @@ export const metadata: Metadata = {
     description: "Deja de comprar leads genéricos. Adquiere citas confirmadas con dueños de casa para proyectos de Aging in Place.",
     url: "https://skywebagency.com",
     siteName: "SkyWeb Agency",
-    locale: "es_US",
+    locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "https://skywebagency.com/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "SkyWeb Agency",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SkyWeb Agency | Ingeniería de Adquisición B2B",
+    description: "Deja de comprar leads genéricos. Adquiere citas confirmadas con dueños de casa para proyectos de Aging in Place.",
+    images: ["https://skywebagency.com/og-image.jpg"],
   },
 };
 
@@ -33,7 +47,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="es"
+      lang="en"
       className={`${geistSans.variable} ${geistMono.variable} dark antialiased scroll-smooth`}
     >
       <body className="min-h-screen bg-background text-foreground flex flex-col font-sans">
