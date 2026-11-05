@@ -2,7 +2,7 @@ import { Navbar } from "@/components/sections/Navbar";
 import { Hero } from "@/components/sections/Hero";
 import { Difference } from "@/components/sections/Difference";
 import { Report } from "@/components/sections/Report";
-import { Week } from "@/components/sections/Week";
+import { ROI } from "@/components/sections/ROI";
 import { Reasons } from "@/components/sections/Reasons";
 import { Founders } from "@/components/sections/Founders";
 import { Plans } from "@/components/sections/Plans";
@@ -17,7 +17,7 @@ export default function Home() {
         <Hero />
         <Difference />
         <Report />
-        <Week />
+        <ROI />
         <Reasons />
         <Founders />
         <Plans />
