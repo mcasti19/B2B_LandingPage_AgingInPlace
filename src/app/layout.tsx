@@ -24,6 +24,13 @@ export const metadata: Metadata = {
     "SkyWeb Agency",
   ],
   alternates: { canonical: "/" },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title,
     description,

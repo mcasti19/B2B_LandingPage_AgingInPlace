@@ -19,22 +19,22 @@ const steps = [
 
 export function Difference() {
   return (
-    <section id="sistema" className="bg-white py-20">
-      <div className="mx-auto max-w-6xl px-5">
-        <p className="text-xs font-bold uppercase tracking-widest text-brand">La diferencia</p>
-        <h2 className="mt-3 max-w-xl text-3xl font-extrabold leading-tight tracking-tight text-ink md:text-4xl">
+    <section id="sistema" className="bg-white py-20 lg:py-28 xl:py-32">
+      <div className="mx-auto max-w-[1480px] px-6 lg:px-12">
+        <p className="text-xs font-bold uppercase tracking-widest lg:text-sm text-brand">La diferencia</p>
+        <h2 className="mt-3 max-w-4xl text-3xl font-extrabold leading-[1.1] tracking-tight lg:text-5xl xl:text-[3.4rem] text-ink">
           Otras plataformas te dan una herramienta. Xentra te da el sistema completo.
         </h2>
-        <p className="mt-4 max-w-xl text-muted">
+        <p className="mt-5 max-w-3xl text-muted lg:text-lg xl:text-xl xl:leading-relaxed">
           Un software solo no llena tu agenda. Xentra viene con el equipo que trae los leads y el
           sistema que lleva cada familia desde la primera llamada hasta el contrato firmado.
         </p>
-        <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-12 grid gap-4 lg:mt-16 lg:gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((s, i) => (
-            <li key={s.title} className="rounded-xl bg-mist p-5">
-              <span className="text-2xl font-extrabold text-brand">{i + 1}</span>
-              <h3 className="mt-3 font-bold text-ink">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">{s.text}</p>
+            <li key={s.title} className="rounded-2xl bg-mist p-6 xl:p-8">
+              <span className="text-3xl font-extrabold text-brand xl:text-4xl">{i + 1}</span>
+              <h3 className="mt-4 font-bold text-ink lg:text-lg xl:text-xl">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted lg:text-base">{s.text}</p>
             </li>
           ))}
         </ol>

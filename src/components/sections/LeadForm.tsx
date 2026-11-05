@@ -133,19 +133,19 @@ export function LeadForm() {
   };
 
   return (
-    <section id="demo" className="bg-navy py-20 text-white">
-      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 md:grid-cols-2">
+    <section id="demo" className="bg-navy py-20 text-white lg:py-28 xl:py-32">
+      <div className="mx-auto grid max-w-[1480px] items-center gap-12 px-6 lg:gap-24 lg:px-12 lg:grid-cols-2">
         <div>
-          <h2 className="text-3xl font-extrabold leading-tight tracking-tight md:text-4xl">
+          <h2 className="text-3xl font-extrabold leading-[1.1] tracking-tight lg:text-5xl xl:text-[3.4rem]">
             Mira Xentra en acción con tu empresa.
           </h2>
-          <p className="mt-4 max-w-md text-white/70">
+          <p className="mt-5 max-w-xl text-white/70 lg:text-lg xl:text-xl xl:leading-relaxed">
             Déjanos tus datos y en una demo de 20 minutos te mostramos una inspección real con el Fall
             Risk Score. Después activas tu prueba gratis de 21 días. En español y sin compromiso.
           </p>
         </div>
 
-        <div className="rounded-2xl bg-white p-6 text-ink shadow-2xl shadow-black/30 md:p-8">
+        <div className="w-full rounded-2xl bg-white p-6 text-ink shadow-2xl shadow-black/30 md:p-8 lg:max-w-xl lg:justify-self-end xl:p-10">
           {isSuccess ? (
             <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 text-center" role="status">
               <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">

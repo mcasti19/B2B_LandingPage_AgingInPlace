@@ -23,25 +23,25 @@ const reasons = [
 
 export function Reasons() {
   return (
-    <section id="porque" className="bg-white py-20">
-      <div className="mx-auto grid max-w-6xl gap-12 px-5 md:grid-cols-[1fr_1.5fr]">
+    <section id="porque" className="bg-white py-20 lg:py-28 xl:py-32">
+      <div className="mx-auto grid max-w-[1480px] gap-12 px-6 lg:gap-24 lg:px-12 lg:grid-cols-[1fr_1.4fr]">
         <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-brand">Por qué Xentra</p>
-          <h2 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight text-ink md:text-4xl">
+          <p className="text-xs font-bold uppercase tracking-widest lg:text-sm text-brand">Por qué Xentra</p>
+          <h2 className="mt-3 text-3xl font-extrabold leading-[1.1] tracking-tight lg:text-5xl xl:text-[3.4rem] text-ink">
             5 razones para elegir Xentra y no otra plataforma
           </h2>
-          <p className="mt-4 text-muted">
+          <p className="mt-5 text-muted lg:text-lg xl:text-xl xl:leading-relaxed">
             Lo construimos pensando en dueños latinos de empresas de aging in place, no en cualquier
             negocio.
           </p>
         </div>
         <ol className="divide-y divide-line">
           {reasons.map((r, i) => (
-            <li key={r.title} className="flex gap-5 py-5 first:pt-0">
-              <span className="text-xl font-extrabold text-brand">{String(i + 1).padStart(2, "0")}</span>
+            <li key={r.title} className="flex gap-6 py-6 first:pt-0 lg:py-8">
+              <span className="text-xl font-extrabold text-brand lg:text-2xl">{String(i + 1).padStart(2, "0")}</span>
               <div>
-                <h3 className="font-bold text-ink">{r.title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-muted">{r.text}</p>
+                <h3 className="font-bold text-ink lg:text-xl">{r.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted lg:text-base xl:text-lg">{r.text}</p>
               </div>
             </li>
           ))}
