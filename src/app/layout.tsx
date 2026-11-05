@@ -1,43 +1,38 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const title = "Xentra CRM | El único CRM que te dice qué cliente necesita tu servicio primero";
+const description =
+  "Xentra te trae los leads, inspecciona con el Fall Risk Score, cotiza en un clic y cierra y cobra. El sistema completo para empresas de aging in place. Un producto de SkyWeb Agency.";
 
 export const metadata: Metadata = {
-  title: "SkyWeb Agency | Ingeniería de Adquisición para Aging in Place",
-  description: "Escala tu empresa de remodelación y Aging in Place. Te enviamos leads exclusivos y confirmados de dueños de casa que necesitan adaptaciones de accesibilidad hoy mismo.",
-  keywords: ["Aging in place leads", "remodelación accesibilidad", "home improvement leads", "SkyWeb Agency", "CRM para contratistas", "captación de clientes remodelación"],
+  metadataBase: new URL("https://xentracrm.com"),
+  title,
+  description,
+  keywords: [
+    "CRM aging in place",
+    "Fall Risk Score",
+    "leads aging in place",
+    "CRM para contratistas",
+    "Xentra CRM",
+    "SkyWeb Agency",
+  ],
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "SkyWeb Agency | Ingeniería de Adquisición B2B",
-    description: "Deja de comprar leads genéricos. Adquiere citas confirmadas con dueños de casa para proyectos de Aging in Place.",
-    url: "https://skywebagency.com",
-    siteName: "SkyWeb Agency",
-    locale: "en_US",
+    title,
+    description,
+    url: "https://xentracrm.com",
+    siteName: "Xentra CRM",
+    locale: "es_US",
     type: "website",
-    images: [
-      {
-        url: "https://skywebagency.com/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "SkyWeb Agency",
-      },
-    ],
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "SkyWeb Agency | Ingeniería de Adquisición B2B",
-    description: "Deja de comprar leads genéricos. Adquiere citas confirmadas con dueños de casa para proyectos de Aging in Place.",
-    images: ["https://skywebagency.com/og-image.jpg"],
-  },
+  twitter: { card: "summary_large_image", title, description },
 };
 
 export default function RootLayout({
@@ -46,13 +41,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark antialiased scroll-smooth`}
-    >
-      <body className="min-h-screen bg-background text-foreground flex flex-col font-sans">
-        {children}
-      </body>
+    <html lang="es" className={`${jakarta.variable} antialiased scroll-smooth`}>
+      <body className="min-h-screen flex flex-col font-sans">{children}</body>
     </html>
   );
 }

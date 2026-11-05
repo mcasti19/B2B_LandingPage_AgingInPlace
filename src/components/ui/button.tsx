@@ -1,34 +1,37 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
+const base =
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+
+const variants = {
+  primary: "bg-brand text-white hover:bg-brand-600 shadow-lg shadow-brand/25",
+  outlineLight: "border border-white/25 text-white hover:bg-white/10",
+  outlineDark: "border border-line text-ink hover:bg-mist",
+} as const
+
+const sizes = {
+  default: "h-10 px-4",
+  sm: "h-9 px-3",
+  lg: "h-12 px-6 text-base",
+} as const
+
+type Props = {
+  variant?: keyof typeof variants
+  size?: keyof typeof sizes
+}
+
+/** Clases reutilizables para enlaces con aspecto de botón. */
+export function buttonClasses({ variant = "primary", size = "default" }: Props = {}, className?: string) {
+  return cn(base, variants[variant], sizes[size], className)
+}
+
 const Button = React.forwardRef<
   HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement> & {
-    variant?: "default" | "outline" | "ghost" | "link" | "emerald"
-    size?: "default" | "sm" | "lg" | "icon"
-  }
->(({ className, variant = "default", size = "default", ...props }, ref) => {
-  return (
-    <button
-      ref={ref}
-      className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-        {
-          "bg-zinc-900 text-zinc-50 hover:bg-zinc-900/90": variant === "default",
-          "bg-emerald-500 text-white hover:bg-emerald-600 shadow-lg shadow-emerald-500/20": variant === "emerald",
-          "border border-zinc-800 bg-transparent hover:bg-zinc-800 text-zinc-300": variant === "outline",
-          "hover:bg-zinc-800 hover:text-zinc-50": variant === "ghost",
-          "h-10 px-4 py-2": size === "default",
-          "h-9 rounded-md px-3": size === "sm",
-          "h-11 rounded-md px-8 text-base": size === "lg",
-          "h-10 w-10": size === "icon",
-        },
-        className
-      )}
-      {...props}
-    />
-  )
-})
+  React.ButtonHTMLAttributes<HTMLButtonElement> & Props
+>(({ className, variant, size, ...props }, ref) => (
+  <button ref={ref} className={buttonClasses({ variant, size }, className)} {...props} />
+))
 Button.displayName = "Button"
 
 export { Button }

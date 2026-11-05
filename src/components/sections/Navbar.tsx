@@ -1,0 +1,42 @@
+import Image from "next/image";
+import { buttonClasses } from "@/components/ui/button";
+
+const links = [
+  { href: "#sistema", label: "El sistema" },
+  { href: "#reporte", label: "El reporte" },
+  { href: "#porque", label: "Por qué Xentra" },
+  { href: "#planes", label: "Planes" },
+];
+
+export function Navbar() {
+  return (
+    <header className="sticky top-0 z-50 bg-navy/95 backdrop-blur border-b border-white/5">
+      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+        <a href="#" aria-label="Xentra CRM, inicio">
+          <Image
+            src="/brand/xentra-horizontal-blanco.svg"
+            alt="Xentra"
+            width={132}
+            height={33}
+            priority
+            className="h-8 w-auto"
+          />
+        </a>
+        <nav className="flex items-center gap-7">
+          {links.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="hidden text-sm font-medium text-white/80 hover:text-white md:block"
+            >
+              {l.label}
+            </a>
+          ))}
+          <a href="#demo" className={buttonClasses({ size: "sm" })}>
+            Hablemos
+          </a>
+        </nav>
+      </div>
+    </header>
+  );
+}

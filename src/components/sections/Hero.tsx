@@ -1,65 +1,106 @@
-"use client";
+import { FileText } from "lucide-react";
+import { buttonClasses } from "@/components/ui/button";
 
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+function ScoreRing({ value }: { value: number }) {
+  const r = 34;
+  const c = 2 * Math.PI * r;
+  return (
+    <div className="relative h-20 w-20 shrink-0">
+      <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90" aria-hidden>
+        <circle cx="40" cy="40" r={r} fill="none" stroke="#e8edf7" strokeWidth="7" />
+        <circle
+          cx="40"
+          cy="40"
+          r={r}
+          fill="none"
+          stroke="#16a870"
+          strokeWidth="7"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - value / 100)}
+        />
+      </svg>
+      <div className="absolute inset-0 flex flex-col items-center justify-center leading-none">
+        <span className="text-2xl font-extrabold text-ink">{value}</span>
+        <span className="mt-0.5 text-[9px] text-muted">de 100</span>
+      </div>
+    </div>
+  );
+}
+
+function ReportCard() {
+  return (
+    <div className="w-full max-w-md rounded-2xl bg-white p-5 text-ink shadow-2xl shadow-black/30">
+      <div className="flex items-center justify-between text-[11px] text-muted">
+        <span>Inspección terminada · hoy</span>
+        <span className="rounded border border-line px-2 py-0.5">Ejemplo ilustrativo</span>
+      </div>
+      <div className="mt-4 flex items-center gap-4">
+        <ScoreRing value={23} />
+        <div>
+          <p className="font-bold">Fall Risk Score</p>
+          <p className="text-xs text-muted">Miami, FL · 2 pisos · con escaleras</p>
+          <span className="mt-2 inline-block rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700">
+            Riesgo bajo global
+          </span>
+        </div>
+      </div>
+      <p className="mt-5 text-[10px] font-bold uppercase tracking-wider text-muted">
+        Espacios que necesitan atención
+      </p>
+      <ul className="mt-2 divide-y divide-line text-sm">
+        <li className="flex justify-between py-2">
+          <span>
+            <b>Entrada</b> · escalones sin pasamanos
+          </span>
+          <b className="text-red-600">78</b>
+        </li>
+        <li className="flex justify-between py-2">
+          <span>
+            <b>Baño</b> · sin barras de apoyo
+          </span>
+          <b className="text-red-600">64</b>
+        </li>
+      </ul>
+      <div className="mt-3 flex items-center gap-2 rounded-lg bg-mist px-3 py-2.5 text-xs font-semibold text-brand">
+        <FileText className="h-4 w-4" />
+        Reporte PDF listo · Cotización generada
+      </div>
+    </div>
+  );
+}
 
 export function Hero() {
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-zinc-950 pt-20">
-      {/* Background glow effects */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-zinc-700/20 rounded-full blur-[120px] pointer-events-none" />
-      
-      <div className="container mx-auto px-6 relative z-10 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="max-w-4xl mx-auto"
-        >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-sm font-medium mb-8 border border-emerald-500/20">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-            Ingeniería de Adquisición B2B
-          </div>
-          
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-zinc-50 mb-8 leading-tight">
-            Escala tu empresa de Aging in Place con{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600">
-              Ingeniería de Adquisición.
-            </span>
+    <section className="bg-navy text-white">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 py-16 md:grid-cols-2 md:py-24">
+        <div>
+          <span className="inline-block rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-white/80">
+            CRM + marketing para el sector de aging in place
+          </span>
+          <h1 className="mt-5 text-4xl font-extrabold leading-[1.08] tracking-tight md:text-5xl">
+            El único CRM que te dice qué cliente necesita tu servicio primero.
           </h1>
-          
-          <p className="text-lg md:text-xl text-zinc-400 mb-10 max-w-3xl mx-auto leading-relaxed">
-            Dejamos de enviarte 'clicks' y empezamos a agendarte citas con dueños de casa que necesitan adaptaciones de accesibilidad hoy mismo.
+          <p className="mt-5 max-w-lg text-base text-white/70">
+            Convierte cada visita en una propuesta lista para firmar. Evalúa la casa, obtén el Fall
+            Risk Score y entrega un reporte profesional en minutos.
           </p>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
-          >
-            <Button 
-              variant="emerald" 
-              size="lg" 
-              className="w-full sm:w-auto text-lg px-8 h-14" 
-              onClick={() => { window.location.href = "#demo"; }}
-            >
-              Solicitar Demo del Sistema
-            </Button>
-            <Button 
-              variant="outline" 
-              size="lg" 
-              className="w-full sm:w-auto text-lg px-8 h-14" 
-              onClick={() => { window.location.href = "#how-it-works"; }}
-            >
-              Cómo Funciona
-            </Button>
-          </motion.div>
-        </motion.div>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <a href="#demo" className={buttonClasses({ size: "lg" })}>
+              Quiero ver Xentra en acción
+            </a>
+            <a href="#sistema" className={buttonClasses({ variant: "outlineLight", size: "lg" })}>
+              Cómo funciona
+            </a>
+          </div>
+          <p className="mt-5 text-xs text-white/55">
+            Prueba gratis de 21 días · Un producto y servicio de{" "}
+            <b className="text-white/80">SkyWeb Agency</b>
+          </p>
+        </div>
+        <div className="flex justify-center md:justify-end">
+          <ReportCard />
+        </div>
       </div>
     </section>
   );

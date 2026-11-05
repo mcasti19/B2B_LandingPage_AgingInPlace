@@ -5,46 +5,56 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Input, fieldClasses } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle, AlertTriangle } from "lucide-react";
 
-// ─── Zod Schema ────────────────────────────────────────────────────────────────
-// Field names match the Laravel PublicB2BLeadRequest contract 1-to-1.
+// ─── Schema Zod ────────────────────────────────────────────────────────────────
+// Los nombres coinciden 1 a 1 con el contrato de PublicB2BLeadRequest (Laravel).
+// `company_type` no existe en el backend: viaja dentro de `message`.
+const COMPANY_TYPES = [
+  "Modificaciones del hogar",
+  "Remodelación general",
+  "Especialista en aging in place",
+  "Otro",
+] as const;
+
 const formSchema = z.object({
-  contact_name: z.string().min(2, "Name must be at least 2 characters"),
-  company_name: z.string().min(2, "Company name is required"),
-  email:        z.string().email("Enter a valid email address"),
-  phone:        z.string().min(7, "Enter a valid phone number").max(50),
-  state:        z.string().min(2, "State is required"),
-  volume:       z.string().min(1, "Please select a volume option"),
-  // Honeypot — must remain empty; bots may fill it.
-  // Optional so react-hook-form initialises it as an empty string.
-  _gotcha:      z.string().optional(),
+  contact_name: z.string().min(2, "Escribe tu nombre"),
+  company_name: z.string().min(2, "Escribe el nombre de tu empresa"),
+  email: z.string().email("Escribe un email válido"),
+  phone: z.string().min(7, "Escribe un teléfono válido").max(50),
+  company_type: z.enum(COMPANY_TYPES),
+  // Honeypot: debe quedar vacío.
+  _gotcha: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
+type ServerField = "contact_name" | "company_name" | "email" | "phone";
 
-// ─── API Types ─────────────────────────────────────────────────────────────────
 interface ApiValidationError {
   message: string;
   errors: Record<string, string[]>;
 }
 
-// ─── UTM Capture ───────────────────────────────────────────────────────────────
+const SERVER_FIELDS: ServerField[] = ["contact_name", "company_name", "email", "phone"];
+
 function getUtmParams(): Record<string, string> {
   if (typeof window === "undefined") return {};
   const params = new URLSearchParams(window.location.search);
   return {
-    utm_source:   params.get("utm_source")   ?? "",
-    utm_medium:   params.get("utm_medium")   ?? "",
+    utm_source: params.get("utm_source") ?? "",
+    utm_medium: params.get("utm_medium") ?? "",
     utm_campaign: params.get("utm_campaign") ?? "",
   };
 }
 
-// ─── Component ─────────────────────────────────────────────────────────────────
+function FieldError({ message }: { message?: string }) {
+  return message ? <span className="text-xs text-red-600">{message}</span> : null;
+}
+
 export function LeadForm() {
-  const [isSuccess, setIsSuccess]   = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
 
   const {
@@ -55,6 +65,7 @@ export function LeadForm() {
     reset,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    defaultValues: { company_type: COMPANY_TYPES[0] },
   });
 
   const onSubmit = async (data: FormData) => {
@@ -62,242 +73,148 @@ export function LeadForm() {
 
     const apiUrl = process.env.NEXT_PUBLIC_CRM_API_URL;
     if (!apiUrl) {
-      setErrorBanner("Configuration error: CRM API URL is not set.");
+      setErrorBanner("Error de configuración: falta la URL de la API.");
       return;
     }
 
     const payload = {
       contact_name: data.contact_name,
       company_name: data.company_name,
-      email:        data.email,
-      phone:        data.phone,
-      // Map the volume dropdown into the message field
-      message:      `Projects per month: ${data.volume} | State: ${data.state}`,
-      // UTM attribution captured from URL params
+      email: data.email,
+      phone: data.phone,
+      message: `Tipo de empresa: ${data.company_type}`,
       ...getUtmParams(),
-      // Honeypot — must remain empty; bots may fill it
       _gotcha: "",
     };
 
     try {
       const response = await fetch(`${apiUrl}/api/public/b2b/leads`, {
-        method:  "POST",
+        method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body:    JSON.stringify(payload),
+        body: JSON.stringify(payload),
       });
 
-      // ── Happy path ────────────────────────────────────────────────────────
       if (response.status === 201) {
         reset();
         setIsSuccess(true);
         return;
       }
 
-      // ── Validation errors from Laravel ─────────────────────────────────────
       if (response.status === 422) {
         const body: ApiValidationError = await response.json();
-        const fieldMap: Partial<Record<keyof FormData, keyof FormData>> = {
-          contact_name: "contact_name",
-          company_name: "company_name",
-          email:        "email",
-          phone:        "phone",
-          state:        "state",
-          volume:       "volume",
-        };
-
         let hasFieldError = false;
-        for (const [apiField, formField] of Object.entries(fieldMap)) {
-          if (body.errors?.[apiField]?.length) {
-            setError(formField as keyof FormData, {
-              type:    "server",
-              message: body.errors[apiField][0],
-            });
+        for (const field of SERVER_FIELDS) {
+          const msg = body.errors?.[field]?.[0];
+          if (msg) {
+            setError(field, { type: "server", message: msg });
             hasFieldError = true;
           }
         }
-
         if (!hasFieldError) {
-          setErrorBanner(body.message ?? "Validation failed. Please review your entries.");
+          setErrorBanner(body.message ?? "Revisa los datos e inténtalo de nuevo.");
         }
         return;
       }
 
-      // ── Rate limited ───────────────────────────────────────────────────────
       if (response.status === 429) {
-        setErrorBanner("Too many submissions. Please wait a moment and try again.");
+        setErrorBanner("Demasiados envíos. Espera un momento e inténtalo de nuevo.");
         return;
       }
 
-      // ── Temporary server-side issue ───────────────────────────────────────
       if (response.status === 503) {
-        setErrorBanner("We are experiencing a temporary issue. Please try again later or contact us directly.");
+        setErrorBanner("Tenemos un problema temporal. Inténtalo más tarde o escríbenos directamente.");
         return;
       }
 
-      // ── Unexpected status ─────────────────────────────────────────────────
-      setErrorBanner(`Unexpected error (${response.status}). Please try again.`);
+      setErrorBanner(`Error inesperado (${response.status}). Inténtalo de nuevo.`);
     } catch {
-      // Network failure / CORS error / server unreachable
-      setErrorBanner("Could not reach our servers. Please check your connection and try again.");
+      setErrorBanner("No pudimos conectar con nuestros servidores. Revisa tu conexión e inténtalo de nuevo.");
     }
   };
 
-  // ─── Component ─────────────────────────────────────────────────────────────────
-  // Inline success state rendered in place of the form
-  const SuccessState = () => (
-    <div className="flex flex-col items-center justify-center py-12 px-6 text-center gap-6 h-full min-h-[400px]">
-      <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center">
-        <CheckCircle className="w-8 h-8 text-emerald-500" />
-      </div>
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-zinc-50 mb-2">
-          You&apos;re on the list!
-        </h2>
-        <p className="text-zinc-400 max-w-md mx-auto">
-          Thanks for reaching out. Our team will review your information and contact you within 24 hours to schedule your personalized demo.
-        </p>
-      </div>
-      <button
-        onClick={() => setIsSuccess(false)}
-        className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors underline underline-offset-4 mt-4"
-      >
-        Submit another response
-      </button>
-    </div>
-  );
-
-  // ─── Form ───────────────────────────────────────────────────────────────────
   return (
-    <section id="demo" className="py-24 bg-zinc-900 border-t border-zinc-800">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-5xl mx-auto bg-zinc-950 rounded-3xl border border-zinc-800 overflow-hidden shadow-2xl">
-          <div className="grid md:grid-cols-5">
+    <section id="demo" className="bg-navy py-20 text-white">
+      <div className="mx-auto grid max-w-6xl items-center gap-12 px-5 md:grid-cols-2">
+        <div>
+          <h2 className="text-3xl font-extrabold leading-tight tracking-tight md:text-4xl">
+            Mira Xentra en acción con tu empresa.
+          </h2>
+          <p className="mt-4 max-w-md text-white/70">
+            Déjanos tus datos y en una demo de 20 minutos te mostramos una inspección real con el Fall
+            Risk Score. Después activas tu prueba gratis de 21 días. En español y sin compromiso.
+          </p>
+        </div>
 
-            {/* Left Side: Copy */}
-            <div className="md:col-span-2 bg-zinc-900 p-6 md:p-10 flex flex-col justify-center border-b md:border-b-0 md:border-r border-zinc-800">
-              <h2 className="text-2xl md:text-3xl font-bold text-zinc-50 mb-4 leading-snug">
-                ¿Listo para dominar tu territorio?
-              </h2>
-              <p className="text-zinc-400 mb-8">
-                Completa el formulario para agendar una demo de nuestro sistema y descubrir cómo podemos llenar tu calendario con dueños de casa pre-calificados.
-              </p>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 text-sm font-medium text-zinc-300">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">✓</div>
-                  Exclusividad de Área
-                </div>
-                <div className="flex items-center gap-3 text-sm font-medium text-zinc-300">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">✓</div>
-                  Leads 100% Confirmados
-                </div>
-                <div className="flex items-center gap-3 text-sm font-medium text-zinc-300">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">✓</div>
-                  CRM Incluido
-                </div>
+        <div className="rounded-2xl bg-white p-6 text-ink shadow-2xl shadow-black/30 md:p-8">
+          {isSuccess ? (
+            <div className="flex min-h-[320px] flex-col items-center justify-center gap-4 text-center" role="status">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50">
+                <CheckCircle className="h-7 w-7 text-emerald-600" />
               </div>
+              <h3 className="text-2xl font-extrabold">¡Listo, recibimos tus datos!</h3>
+              <p className="max-w-sm text-sm text-muted">
+                Nuestro equipo te contactará en menos de 24 horas para agendar tu demo de 20 minutos.
+              </p>
+              <button
+                onClick={() => setIsSuccess(false)}
+                className="mt-2 text-xs text-muted underline underline-offset-4 hover:text-ink"
+              >
+                Enviar otra respuesta
+              </button>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+              <div className="space-y-2">
+                <Label htmlFor="contact_name">Tu nombre</Label>
+                <Input id="contact_name" placeholder="Ej. María González" autoComplete="name" {...register("contact_name")} />
+                <FieldError message={errors.contact_name?.message} />
+              </div>
 
-            {/* Right Side: Form or Success */}
-            <div className="md:col-span-3 p-6 md:p-10">
-              {isSuccess ? (
-                <SuccessState />
-              ) : (
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-                  {/* Row 1: Name + Company */}
-                  <div className="grid md:grid-cols-2 gap-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="contact_name">Owner&apos;s Name</Label>
-                      <Input id="contact_name" placeholder="John Doe" {...register("contact_name")} />
-                      {errors.contact_name && (
-                        <span className="text-red-400 text-xs">{errors.contact_name.message}</span>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="company_name">Company Name</Label>
-                      <Input id="company_name" placeholder="Acme Remodeling" {...register("company_name")} />
-                      {errors.company_name && (
-                        <span className="text-red-400 text-xs">{errors.company_name.message}</span>
-                      )}
-                    </div>
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="company_name">Nombre de tu empresa</Label>
+                <Input id="company_name" autoComplete="organization" {...register("company_name")} />
+                <FieldError message={errors.company_name?.message} />
+              </div>
 
-                  {/* Row 2: Email + Phone */}
-                  <div className="grid md:grid-cols-2 gap-5">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email Address</Label>
-                      <Input id="email" type="email" placeholder="john@acmeremodeling.com" {...register("email")} />
-                      {errors.email && (
-                        <span className="text-red-400 text-xs">{errors.email.message}</span>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input id="phone" type="tel" placeholder="+1 (555) 000-0000" {...register("phone")} />
-                      {errors.phone && (
-                        <span className="text-red-400 text-xs">{errors.phone.message}</span>
-                      )}
-                    </div>
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" autoComplete="email" {...register("email")} />
+                <FieldError message={errors.email?.message} />
+              </div>
 
-                  {/* Row 3: State */}
-                  <div className="space-y-2">
-                    <Label htmlFor="state">State (e.g. Florida, Texas)</Label>
-                    <Input id="state" placeholder="State where you operate" {...register("state")} />
-                    {errors.state && (
-                      <span className="text-red-400 text-xs">{errors.state.message}</span>
-                    )}
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Teléfono</Label>
+                <Input id="phone" type="tel" placeholder="+1" autoComplete="tel" {...register("phone")} />
+                <FieldError message={errors.phone?.message} />
+              </div>
 
-                  {/* Row 4: Volume */}
-                  <div className="space-y-2">
-                    <Label htmlFor="volume" className="text-sm leading-snug block">
-                      How many accessibility projects do you complete per month?
-                    </Label>
-                    <select
-                      id="volume"
-                      className="flex h-10 w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm ring-offset-zinc-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 text-zinc-100"
-                      {...register("volume")}
-                    >
-                      <option value="">Select an option</option>
-                      <option value="1-3">1 to 3 projects</option>
-                      <option value="4-10">4 to 10 projects</option>
-                      <option value="10+">More than 10 projects</option>
-                    </select>
-                    {errors.volume && (
-                      <span className="text-red-400 text-xs">{errors.volume.message}</span>
-                    )}
-                  </div>
+              <div className="space-y-2">
+                <Label htmlFor="company_type">Tipo de empresa</Label>
+                <select id="company_type" className={fieldClasses} {...register("company_type")}>
+                  {COMPANY_TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+                <FieldError message={errors.company_type?.message} />
+              </div>
 
-                  {/* Honeypot — hidden from real users, traps bots */}
-                  <input type="text" {...register("_gotcha")} style={{ display: "none" }} tabIndex={-1} autoComplete="off" />
+              {/* Honeypot: oculto para personas, atrapa bots */}
+              <input type="text" {...register("_gotcha")} style={{ display: "none" }} tabIndex={-1} autoComplete="off" />
 
-                  {/* Error Banner */}
-                  {errorBanner && (
-                    <div className="flex items-start gap-3 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
-                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                      <span>{errorBanner}</span>
-                    </div>
-                  )}
-
-                  <Button
-                    type="submit"
-                    variant="emerald"
-                    size="lg"
-                    className="w-full h-auto py-3 md:py-4 text-base md:text-lg mt-2 whitespace-normal text-center"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Sending..." : "Get my growth plan"}
-                  </Button>
-
-                  <p className="text-center text-xs text-zinc-500">
-                    Your data is safe. We will never share it with anyone.
-                  </p>
-                </form>
+              {errorBanner && (
+                <div role="alert" className="flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{errorBanner}</span>
+                </div>
               )}
-            </div>
 
-          </div>
+              <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Enviando..." : "Agenda tu demo y activa tus 21 días gratis"}
+              </Button>
+            </form>
+          )}
         </div>
       </div>
     </section>

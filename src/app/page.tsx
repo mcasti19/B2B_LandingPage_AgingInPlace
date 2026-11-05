@@ -1,27 +1,29 @@
+import { Navbar } from "@/components/sections/Navbar";
 import { Hero } from "@/components/sections/Hero";
-import { Problem } from "@/components/sections/Problem";
-import { Solution } from "@/components/sections/Solution";
-import { Features } from "@/components/sections/Features";
-import { ROI } from "@/components/sections/ROI";
+import { Difference } from "@/components/sections/Difference";
+import { Report } from "@/components/sections/Report";
+import { Week } from "@/components/sections/Week";
+import { Reasons } from "@/components/sections/Reasons";
+import { Founders } from "@/components/sections/Founders";
+import { Plans } from "@/components/sections/Plans";
 import { LeadForm } from "@/components/sections/LeadForm";
+import { Footer } from "@/components/sections/Footer";
 
 export default function Home() {
   return (
-    <main className="flex-1 w-full flex flex-col">
-      <Hero />
-      <Problem />
-      <Solution />
-      <Features />
-      <ROI />
-      <LeadForm />
-      
-      <footer className="bg-zinc-950 py-12 border-t border-zinc-800">
-        <div className="container mx-auto px-6 text-center">
-          <p className="text-zinc-500 text-sm">
-            © {new Date().getFullYear()} SkyWeb Agency. Todos los derechos reservados.
-          </p>
-        </div>
-      </footer>
-    </main>
+    <>
+      <Navbar />
+      <main className="flex-1 w-full flex flex-col">
+        <Hero />
+        <Difference />
+        <Report />
+        <Week />
+        <Reasons />
+        <Founders />
+        <Plans />
+        <LeadForm />
+      </main>
+      <Footer />
+    </>
   );
 }

@@ -1,32 +1,30 @@
 @import "tailwindcss";
 
-@plugin "tailwindcss-animate";
-
-@custom-variant dark (&:is(.dark *));
-
-:root {
-  --background: #09090b;
-  /* zinc-950 */
-  --foreground: #fafafa;
-  /* zinc-50 */
-
-  /* Additional Tailwind v4 theme tokens can be added here if needed */
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans), sans-serif;
-  @apply antialiased selection:bg-emerald-500/30 selection:text-emerald-200;
+  --color-navy: #0a1330;
+  --color-navy-800: #111d42;
+  --color-navy-700: #1a2a58;
+  --color-brand: #2352f5;
+  --color-brand-600: #1b43d6;
+  --color-sky: #3fcbfc;
+  --color-ink: #0f1a3a;
+  --color-muted: #5b6785;
+  --color-mist: #f4f7fd;
+  --color-line: #e2e8f5;
+  --font-sans: var(--font-jakarta);
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-ink);
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+  @apply antialiased selection:bg-brand/20;
+}
+
+section[id] {
+  scroll-margin-top: 4rem;
 }
